@@ -1,0 +1,63 @@
+{
+    "variables": {
+      "iso": "https://releases.ubuntu.com/20.04/ubuntu-20.04.1-live-server-amd64.iso",
+      "checksum": "443511f6bf12402c12503733059269a2e10dec602916c0a75263e5d990f6bb93",
+      "username": "ubuntu",
+      "password": "ubuntu"
+    },
+    "builders": [
+      {
+        "type": "virtualbox-iso",
+        "guest_os_type": "Ubuntu_64",
+        "iso_url": "{{ user `iso` }}",
+        "iso_checksum": "sha256:{{ user `checksum` }}",
+        "output_directory": "vbox",
+        "http_directory": "httpd",
+        "vm_name": "Ubuntu",
+        "ssh_username": "{{ user `username` }}",
+        "ssh_password": "{{ user `password` }}",
+        "disk_size": "20000",
+        "memory": "2048",
+        "shutdown_command": "echo '{{ user `password` }}' | sudo -S shutdown -P now",
+        "boot_wait": "5s",
+        "ssh_wait_timeout": "20m",
+        "ssh_handshake_attempts": "200",
+        "boot_command": [
+          "<enter><enter><f6><esc><wait> ",
+          "autoinstall ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/",
+          "<enter>"
+        ]
+      },
+      {
+        "type": "qemu",
+        "iso_url": "{{ user `iso` }}",
+        "iso_checksum": "sha256:{{ user `checksum` }}",
+        "output_directory": "qemu",
+        "qemu_binary": "/usr/bin/kvm",
+        "display": "none",
+        "format": "qcow2",
+        "accelerator": "kvm",
+        "vm_name": "Ubuntu",
+        "ssh_username": "{{ user `username` }}",
+        "ssh_password": "{{ user `password` }}",
+        "ssh_port": 22,
+        "ssh_wait_timeout": "20m",
+        "net_device": "virtio-net",
+        "disk_interface": "virtio",
+        "disk_size": "50000",
+        "memory": "2048",
+        "http_directory": "httpd",
+        "vnc_bind_address": "0.0.0.0",
+        "vnc_port_min": 5915,
+        "vnc_port_max": 5920,
+        "boot_wait": "2s",
+        "ssh_handshake_attempts": "200",
+        "boot_command": [
+          "<enter><enter><f6><esc><wait> ",
+          "autoinstall ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/",
+          "<enter>"
+        ],
+        "shutdown_command": "echo '{{ user `password` }}' | sudo -S shutdown -P now"
+      }
+    ]
+  }
